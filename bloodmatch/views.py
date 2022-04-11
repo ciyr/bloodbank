@@ -4,7 +4,13 @@ from .models import Region, Donor, Receiver
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 def home(request):
-    return render(request, 'bloodmatch/templates/home.html')
+    return render(request, 'home.html')
+
+def login(request):
+    return render(request, 'login.html')
+    
+def register(request):
+    return render(request, 'register.html')
 
 @login_required
 def register_donor(request):
@@ -20,9 +26,9 @@ def register_donor(request):
         region = Region.objects.get(city=city)
         donor = Donor(name=name, age=age, aadhar_no=aadhar_no, blood_group=blood_group, phone_number=phone_number, address=address, hemoglobin=hemoglobin, city=region)
         donor.save()
-        return render(request, 'bloodmatch/templates/home.html')
+        return render(request, 'home.html')
 
-    return render(request, 'bloodmatch/templates/request_blood.html')
+    return render(request, 'donate_blood.html')
 
 @login_required
 def register_receiver(request):
@@ -37,7 +43,8 @@ def register_receiver(request):
         region = Region.objects.get(city=city)
         receiver = Receiver(name=name, age=age, aadhar_no=aadhar_no, blood_group=blood_group, phone_number=phone_number, address=address, city=region)
         receiver.save()
-        return render(request, 'bloodmatch/templates/home.html')
+        return render(request, 'home.html')
 
-    return render(request, 'bloodmatch/templates/request_blood.html')
+    return render(request, 'request_blood.html')
+
 
