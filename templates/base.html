@@ -34,13 +34,13 @@
                             <a href="{% url 'bloodmatch:home' %}"
                                 class=" text-sm font-semibold hover:text-purple-600 mr-4 ">Home</a>
                             {% if user.is_authenticated %}
-                            <a href="#" class=" text-sm font-semibold hover:text-purple-600 mr-4">Donate</a>
+                            <a href="{% url 'bloodmatch:register_donor' %}" class=" text-sm font-semibold hover:text-purple-600 mr-4">Donate</a>
                             {% else %}
                             <a href="{% url 'bloodmatch:login' %}"
                                 class=" text-sm font-semibold hover:text-purple-600 mr-4">Donate</a>
                             {% endif %}
                             {% if user.is_authenticated %}
-                            <a href="#" class=" text-sm font-semibold hover:text-purple-600 mr-4">Request Blood</a>
+                            <a href="{% url 'bloodmatch:register_receiver' %}" class=" text-sm font-semibold hover:text-purple-600 mr-4">Request Blood</a>
                             {% else %}
                             <a href="{% url 'bloodmatch:login' %}"
                                 class=" text-sm font-semibold hover:text-purple-600 mr-4">Request Blood</a>

@@ -10,6 +10,7 @@ class Region(models.Model):
 
 class Donor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    email=models.EmailField(max_length=100, null=False, default="a@gmail.com")
     name = models.CharField(max_length=100)
     age = models.IntegerField(default=0)
     aadhar_no = models.BigIntegerField(max_length=12, primary_key=True)
@@ -29,6 +30,7 @@ class Donor(models.Model):
 
 class Receiver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    email=models.EmailField(max_length=100,null=False,default="a@gmail.com")
     name = models.CharField(max_length=100)
     age = models.IntegerField(default=0)
     aadhar_no = models.BigIntegerField(max_length=12, primary_key=True)
