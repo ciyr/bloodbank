@@ -2,11 +2,11 @@ from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render
 from .models import Region, Donor, Receiver
-
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import login, authenticate
-
+from django.conf import settings
+from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -46,11 +46,23 @@ def register_donor(request):
             address = request.POST['address']
             hemoglobin = request.POST['hemoglobin']
             city = request.POST['city']
-            region = Region.objects.get(city=city)
-           
-            
+            region = Region.objects.get(city=city)            
             donor = Donor(user=user, name=name,email=email, age=age, aadhar_no=aadhar_no, blood_group=blood_group, phone_number=phone_number, address=address, hemoglobin=hemoglobin, city=region)
             donor.save()
+            try:
+                receiver = Receiver.objects.get(city=region, blood_group=blood_group)
+                if receiver:
+                    rmail = receiver.email
+                    rname = receiver.name
+                    mailtemp = f"Dear {rname},\n\nWe have found a match for your {blood_group} blood group.\n Please contact {email} regarding the same. \n\nRegards,\nBloodbank Team"
+                    subject = "Blood Match"
+                    email_from = settings.EMAIL_HOST_USER
+                    recipient_list = [rmail]
+                    send_mail(subject, mailtemp, email_from, recipient_list)
+                    donor.delete()
+                    receiver.delete()
+            except Receiver.DoesNotExist:
+                pass
             return redirect('bloodmatch:home')
         except IntegrityError:
             return redirect('bloodmatch:register_donor')
@@ -74,6 +86,19 @@ def register_receiver(request):
             region = Region.objects.get(city=city)
             receiver = Receiver(user=user,name=name, email=email,age=age, aadhar_no=aadhar_no, blood_group=blood_group, phone_number=phone_number, address=address, city=region)
             receiver.save()
+            try:
+                donor = Donor.objects.get(city=region, blood_group=blood_group)
+                if donor:
+                    dmail = donor.email
+                    mailtemp = f"Dear {name},\n\nWe have found a match for your {blood_group} blood group.\n Please contact {dmail} regarding the same. \n\nRegards,\nBloodbank Team"
+                    subject = "Blood Match"
+                    email_from = settings.EMAIL_HOST_USER
+                    recipient_list = [email]
+                    send_mail(subject, mailtemp, email_from, recipient_list)
+                    donor.delete()
+                    receiver.delete()
+            except Donor.DoesNotExist:
+                pass                
             return redirect('bloodmatch:home')
         except IntegrityError:
             return redirect('bloodmatch:register_receiver')
