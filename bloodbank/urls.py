@@ -20,5 +20,6 @@ from bloodmatch import urls as bloodmatch_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
     path('', include(bloodmatch_urls,namespace='bloodmatch')),
 ]
