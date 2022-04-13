@@ -10,6 +10,8 @@ from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+
+
 # Create your views here.
 def home(request):
     return render(request, 'home.html')
@@ -46,15 +48,16 @@ def register_donor(request):
             address = request.POST['address']
             hemoglobin = request.POST['hemoglobin']
             city = request.POST['city']
-            region = Region.objects.get(city=city)            
+            region = Region.objects.get(city=city)  
+            state= region.state          
             donor = Donor(user=user, name=name,email=email, age=age, aadhar_no=aadhar_no, blood_group=blood_group, phone_number=phone_number, address=address, hemoglobin=hemoglobin, city=region)
             donor.save()
             try:
-                receiver = Receiver.objects.get(city=region, blood_group=blood_group)
+                receiver = Receiver.objects.get( blood_group=blood_group, city__state=state)
                 if receiver:
                     rmail = receiver.email
                     rname = receiver.name
-                    mailtemp = f"Dear {rname},\n\nWe have found a match for your {blood_group} blood group.\n Please contact {email} regarding the same. \n\nRegards,\nBloodbank Team"
+                    mailtemp = f"Dear {rname},\n\nWe have found a match for your {blood_group} blood group.\nPlease contact {email} living in {address}, {city} regarding the same. \n\nRegards,\nBloodbank Team"
                     subject = "Blood Match"
                     email_from = settings.EMAIL_HOST_USER
                     recipient_list = [rmail]
@@ -65,7 +68,9 @@ def register_donor(request):
                 pass
             return redirect('bloodmatch:home')
         except IntegrityError:
-            return redirect('bloodmatch:register_donor')
+            #  return redirect('bloodmatch:register_donor')
+            # return render_to_response("template.html", {"message": e.message})
+            return render(request, 'donate_blood.html', {'message': 'You have already registered as a donor.'})
     
 
     return render(request, 'donate_blood.html')
@@ -84,13 +89,16 @@ def register_receiver(request):
             address = request.POST['address']
             city = request.POST['city']
             region = Region.objects.get(city=city)
+            state= region.state
             receiver = Receiver(user=user,name=name, email=email,age=age, aadhar_no=aadhar_no, blood_group=blood_group, phone_number=phone_number, address=address, city=region)
             receiver.save()
             try:
-                donor = Donor.objects.get(city=region, blood_group=blood_group)
+                donor = Donor.objects.get( blood_group=blood_group, city__state=state)
                 if donor:
                     dmail = donor.email
-                    mailtemp = f"Dear {name},\n\nWe have found a match for your {blood_group} blood group.\n Please contact {dmail} regarding the same. \n\nRegards,\nBloodbank Team"
+                    daddress= donor.address
+                    dcity=donor.city
+                    mailtemp = f"Dear {name},\n\nWe have found a match for your {blood_group} blood group.\nPlease contact {dmail} living in {daddress}, {dcity} regarding the same. \n\nRegards,\nBloodbank Team"
                     subject = "Blood Match"
                     email_from = settings.EMAIL_HOST_USER
                     recipient_list = [email]
@@ -101,20 +109,9 @@ def register_receiver(request):
                 pass                
             return redirect('bloodmatch:home')
         except IntegrityError:
-            return redirect('bloodmatch:register_receiver')
+            return render (request, 'request_blood.html', {'message': 'You have already registered as a receiver. Kindly signup as a new user.'})
 
     return render(request, 'request_blood.html')
 
 
-# @login_required
-# def search_donor(request):
-#     if request.method == 'POST':
-        
-#             blood_group = request.POST['blood_group']
-#             city = request.POST['city']
-#             region = Region.objects.get(city=city)
-#             donor = Donor.objects.filter(blood_group=blood_group, city=region)
-#             return render(request, 'search_donor.html', {'donor': donor})
-       
-#     return render(request, 'search_donor.html')
 
