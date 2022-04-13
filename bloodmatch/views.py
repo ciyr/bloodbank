@@ -61,7 +61,11 @@ def register_donor(request):
                     subject = "Blood Match"
                     email_from = settings.EMAIL_HOST_USER
                     recipient_list = [rmail]
-                    send_mail(subject, mailtemp, email_from, recipient_list)
+                    try:
+                        send_mail(subject, mailtemp, email_from, recipient_list)
+                    except Exception as e:
+                        
+                        return HttpResponse("Error sending mail")
                     donor.delete()
                     receiver.delete()
             except Receiver.DoesNotExist:
@@ -102,7 +106,11 @@ def register_receiver(request):
                     subject = "Blood Match"
                     email_from = settings.EMAIL_HOST_USER
                     recipient_list = [email]
-                    send_mail(subject, mailtemp, email_from, recipient_list)
+                    try:
+                        send_mail(subject, mailtemp, email_from, recipient_list)
+                    except Exception as e:
+                       
+                        return HttpResponse("Error sending mail")
                     donor.delete()
                     receiver.delete()
             except Donor.DoesNotExist:
